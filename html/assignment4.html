@@ -1,0 +1,504 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>assignment4</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-30"><meta name="DC.source" content="assignment4.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Assignment 4</a></li><li><a href="#2">Frequency Response</a></li><li><a href="#3">Part D - Monte Carlo</a></li><li><a href="#4">Transient Analysis</a></li><li><a href="#5">Noise</a></li><li><a href="#6">Varying Bandwidth</a></li><li><a href="#7">VaryingStepSize</a></li><li><a href="#8">Non-linear Gain</a></li><li><a href="#9">Tapezoidal Rule</a></li></ul></div><h2 id="1">Assignment 4</h2><p>Nathan Lavoy 100995612 Submitted: March 30, 2019</p><pre class="codeinput">clc; close <span class="string">all</span>;  clear <span class="string">all</span>;  <span class="comment">%initialization of the matlab environment</span>
+
+<span class="keyword">global</span> G C b; <span class="comment">%define global variables</span>
+
+G = zeros(6,6);
+C = zeros(6,6);
+b = zeros(6,1);
+
+vol(1,0,1);
+res(1,2,1);
+cap(1,2,0.25);
+res(2,0,2);
+ind(2,3,0.2);
+res(3,4,10);
+ccvs2(5,0,4,0,100);
+res(5,6,0.1);
+res(6,0,1000);
+disp(<span class="string">'The G matix is:'</span>)
+disp(G)
+disp(<span class="string">'The C matix is:'</span>)
+disp(C)
+
+steps = 50;
+Vin = linspace(-10,10, 50);
+<span class="keyword">for</span> n=1:steps
+    b(7) = Vin(n);
+    X = G\b;
+    V3(n) = X(3);
+    VO(n) = X(6);
+    gain(n) = VO(n)/Vin(n);
+<span class="keyword">end</span>
+figure(1);
+plot(Vin,V3, Vin, VO);
+title(<span class="string">'DC Sweep'</span>)
+xlabel(<span class="string">'Input Voltage (V)'</span>)
+ylabel(<span class="string">'Ouput Voltage (V)'</span>)
+legend([<span class="string">'V_3'</span>;<span class="string">'V_O'</span>])
+</pre><pre class="codeoutput">The G matix is:
+  Columns 1 through 7
+
+    1.0000   -1.0000         0         0         0         0    1.0000
+   -1.0000    1.5000         0         0         0         0         0
+         0         0    0.1000   -0.1000         0         0         0
+         0         0   -0.1000    0.1000         0         0         0
+         0         0         0         0   10.0000  -10.0000         0
+         0         0         0         0  -10.0000   10.0010         0
+    1.0000         0         0         0         0         0         0
+         0    1.0000   -1.0000         0         0         0         0
+         0         0         0    1.0000         0         0         0
+         0         0         0         0    1.0000         0         0
+
+  Columns 8 through 10
+
+         0         0         0
+    1.0000         0         0
+   -1.0000         0         0
+         0    1.0000         0
+         0         0    1.0000
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0 -100.0000         0
+
+The C matix is:
+  Columns 1 through 7
+
+    0.2500   -0.2500         0         0         0         0         0
+   -0.2500    0.2500         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+
+  Columns 8 through 10
+
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+   -0.2000         0         0
+         0         0         0
+         0         0         0
+
+</pre><img vspace="5" hspace="5" src="assignment4_01.png" alt=""> <h2 id="2">Frequency Response</h2><pre class="codeinput">F = logspace(0, 9, 5000);
+OutputNode = 6;
+b(7) = 1;
+<span class="keyword">for</span> n=1:length(F)
+    w = 2*pi*F(n);
+    s = 1i*F(n);
+    A = G + s*C;
+
+    X = A\b;
+    Vout(n) = abs(X(OutputNode));
+    gain(n) = 20*log(abs(X(OutputNode)));
+<span class="keyword">end</span>
+
+figure(2);
+semilogx(F, Vout);
+xlabel(<span class="string">'Frequency (Hz)'</span>);
+ylabel(<span class="string">'V_O (V)'</span>);
+title(<span class="string">'Frequncy Response'</span>);
+figure(3);
+semilogx(F, gain);
+xlabel(<span class="string">'Frequency (Hz)'</span>);
+ylabel(<span class="string">'Gain (dB)'</span>);
+title(<span class="string">'Gain Response'</span>);
+</pre><img vspace="5" hspace="5" src="assignment4_02.png" alt=""> <img vspace="5" hspace="5" src="assignment4_03.png" alt=""> <img vspace="5" hspace="5" src="assignment4_04.png" alt=""> <h2 id="3">Part D - Monte Carlo</h2><pre class="codeinput">Cvals = 0.25 + 0.05.*randn(1,1000);
+<span class="keyword">for</span> n = 1:1000
+    s = 1i*pi;
+    C(1,1) = Cvals(n);
+    C(2,2) = Cvals(n);
+    C(1,2) = Cvals(n)*-1;
+    C(2,1) = Cvals(n)*-1;
+
+    A = G + s*C;
+    X = A\b;
+    gainMC(n) = 20*log10(abs(X(OutputNode)));
+<span class="keyword">end</span>
+figure(4)
+histogram(gainMC);
+</pre><img vspace="5" hspace="5" src="assignment4_05.png" alt=""> <h2 id="4">Transient Analysis</h2><pre class="codeinput">Inputs;
+Fs = 1000;
+T = 1/Fs;
+L = 1000;
+t = (0:L-1)*T;
+[stepOut,stepinF,stepOutF] = transient(G,C,b,stepin,t,T);
+[sinOut,sininF,sinOutF] = transient(G,C,b,sinin,t,T);
+[gaussOut,gaussinF,gaussOutF] = transient(G,C,b,gaussin,t,T);
+
+<span class="comment">% FFT of step</span>
+figure(5);
+subplot(3,1,1)
+plot(t,stepin,t,stepOut);
+title(<span class="string">'Step Function Time Domain Response'</span>);
+xlabel(<span class="string">'Time (s)'</span>);
+ylabel(<span class="string">'Voltage (V)'</span>);
+legend(<span class="string">'V_i_n'</span>,<span class="string">'V_O'</span>);
+disp(<span class="string">'Note: the infinite fourier transform is not shown due to the low sampling rate'</span>)
+subplot(3,1,2)
+plot(stepinF)
+title(<span class="string">'Single-Sided Amplitude Spectrum of Step Function Input'</span>)
+xlabel(<span class="string">'f (Hz)'</span>)
+ylabel(<span class="string">'|P1(f)|'</span>)
+xlim([450 550])
+subplot(3,1,3)
+plot(stepOutF,<span class="string">'red'</span>)
+title(<span class="string">'Single-Sided Amplitude Spectrum of Step Function Output'</span>)
+xlabel(<span class="string">'f (Hz)'</span>)
+ylabel(<span class="string">'|P1(f)|'</span>)
+xlim([450 550])
+
+<span class="comment">% FFT of sine</span>
+figure(6);
+subplot(3,1,1)
+plot(t,sinin,t,sinOut);
+title(<span class="string">'Sine Function Time Domain Response'</span>);
+xlabel(<span class="string">'Time (s)'</span>);
+ylabel(<span class="string">'Voltage (V)'</span>);
+legend(<span class="string">'V_i_n'</span>,<span class="string">'V_O'</span>);
+subplot(3,1,2)
+plot(sininF)
+title(<span class="string">'Single-Sided Amplitude Spectrum of Sine Function Input'</span>)
+xlabel(<span class="string">'f (Hz)'</span>)
+ylabel(<span class="string">'|P1(f)|'</span>)
+xlim([300 700])
+subplot(3,1,3)
+plot(sinOutF,<span class="string">'red'</span>)
+title(<span class="string">'Single-Sided Amplitude Spectrum of Sine Function Output'</span>)
+xlabel(<span class="string">'f (Hz)'</span>)
+ylabel(<span class="string">'|P1(f)|'</span>)
+xlim([300 700])
+
+<span class="comment">% FFT of Gauss</span>
+figure(7);
+subplot(3,1,1)
+plot(tg,gaussin,t,gaussOut);
+title(<span class="string">'Gaussian Pulse Time Domain Response'</span>);
+xlabel(<span class="string">'Time (s)'</span>);
+ylabel(<span class="string">'Voltage (V)'</span>);
+legend(<span class="string">'V_i_n'</span>,<span class="string">'V_O'</span>);
+subplot(3,1,2)
+plot(gaussinF)
+title(<span class="string">'Single-Sided Amplitude Spectrum of Gaussian Pulse Input'</span>)
+xlabel(<span class="string">'Frequency (f)'</span>)
+ylabel(<span class="string">'|P(f)|'</span>)
+xlim([300 700])
+subplot(3,1,3)
+plot(gaussOutF)
+title(<span class="string">'Single-Sided Amplitude Spectrum of Gaussian Pulse Output'</span>)
+xlabel(<span class="string">'f (Hz)'</span>)
+ylabel(<span class="string">'|P(f)|'</span>)
+xlim([300 700])
+</pre><img vspace="5" hspace="5" src="assignment4_06.png" alt=""> <img vspace="5" hspace="5" src="assignment4_07.png" alt=""> <img vspace="5" hspace="5" src="assignment4_08.png" alt=""> <img vspace="5" hspace="5" src="assignment4_09.png" alt=""> <h2 id="5">Noise</h2><pre class="codeinput">assignment4_part3
+</pre><pre class="codeoutput">The new C Matrix including nominal 1 values for the current source is:
+  Columns 1 through 7
+
+    0.2500   -0.2500         0         0         0         0         0
+   -0.2500    0.2500         0         0         0         0         0
+         0         0    0.0000   -0.0000         0         0         0
+         0         0   -0.0000    0.0000         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+
+  Columns 8 through 10
+
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+         0         0         0
+   -0.2000         0         0
+         0         0         0
+         0         0         0
+
+</pre><img vspace="5" hspace="5" src="assignment4_10.png" alt=""> <img vspace="5" hspace="5" src="assignment4_11.png" alt=""> <img vspace="5" hspace="5" src="assignment4_12.png" alt=""> <img vspace="5" hspace="5" src="assignment4_13.png" alt=""> <img vspace="5" hspace="5" src="assignment4_14.png" alt=""> <img vspace="5" hspace="5" src="assignment4_15.png" alt=""> <h2 id="6">Varying Bandwidth</h2><pre class="codeinput">VaryingBW
+</pre><img vspace="5" hspace="5" src="assignment4_16.png" alt=""> <img vspace="5" hspace="5" src="assignment4_17.png" alt=""> <h2 id="7">VaryingStepSize</h2><pre class="codeinput">varyingStepSize
+</pre><img vspace="5" hspace="5" src="assignment4_18.png" alt=""> <img vspace="5" hspace="5" src="assignment4_19.png" alt=""> <img vspace="5" hspace="5" src="assignment4_20.png" alt=""> <h2 id="8">Non-linear Gain</h2><p>If the response given is non-linear in the form V = aI3 + bI3^2 + cI3^3 than the addition of a F(X) vector must be added. This will be solved by a Newton-Raphson method which would be implemented to solve the F(X) equation. It would then be used in the linear decomposition or trapezoidal rule.</p><h2 id="9">Tapezoidal Rule</h2><pre class="codeinput"><span class="keyword">function</span> [Vout,ffts1, ffts2] = transient(G,C,b,input,time,h)
+    xold = zeros(length(b),1);
+    Vout = zeros(numel(time),1);
+    bnew = zeros(length(b),1);
+
+    <span class="keyword">for</span> n=2:numel(time)
+        bmat = b;
+        bmat(7) = input(n-1);
+        bnew(7) = input(n);
+        A = (2*C/h + G);
+        xnew = A\((2*C/h - G)*xold + bmat + bnew);
+        Vout(n) = xnew(6);
+        xold = xnew;
+    <span class="keyword">end</span>
+    ffts1 = fftshift(abs(fft(input)));
+    ffts2 = fftshift(abs(fft(Vout)));
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Note: the infinite fourier transform is not shown due to the low sampling rate
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Assignment 4
+% Nathan Lavoy
+% 100995612
+% Submitted: March 30, 2019
+clc; close all;  clear all;  %initialization of the matlab environment
+
+global G C b; %define global variables
+
+G = zeros(6,6); 
+C = zeros(6,6); 
+b = zeros(6,1); 
+
+vol(1,0,1);
+res(1,2,1);
+cap(1,2,0.25);
+res(2,0,2);
+ind(2,3,0.2);
+res(3,4,10);
+ccvs2(5,0,4,0,100);
+res(5,6,0.1);
+res(6,0,1000);
+disp('The G matix is:')
+disp(G)
+disp('The C matix is:')
+disp(C)
+
+steps = 50;
+Vin = linspace(-10,10, 50);
+for n=1:steps
+    b(7) = Vin(n);
+    X = G\b;
+    V3(n) = X(3);
+    VO(n) = X(6);
+    gain(n) = VO(n)/Vin(n);
+end
+figure(1);
+plot(Vin,V3, Vin, VO);
+title('DC Sweep')
+xlabel('Input Voltage (V)')
+ylabel('Ouput Voltage (V)')
+legend(['V_3';'V_O'])
+%% Frequency Response
+F = logspace(0, 9, 5000);
+OutputNode = 6;  
+b(7) = 1;
+for n=1:length(F)
+    w = 2*pi*F(n);
+    s = 1i*F(n);
+    A = G + s*C;   
+
+    X = A\b;
+    Vout(n) = abs(X(OutputNode));
+    gain(n) = 20*log(abs(X(OutputNode)));
+end
+
+figure(2);
+semilogx(F, Vout);
+xlabel('Frequency (Hz)');
+ylabel('V_O (V)');
+title('Frequncy Response');
+figure(3);
+semilogx(F, gain);
+xlabel('Frequency (Hz)');
+ylabel('Gain (dB)');
+title('Gain Response');
+%% Part D - Monte Carlo
+Cvals = 0.25 + 0.05.*randn(1,1000);
+for n = 1:1000
+    s = 1i*pi;
+    C(1,1) = Cvals(n);
+    C(2,2) = Cvals(n);
+    C(1,2) = Cvals(n)*-1;
+    C(2,1) = Cvals(n)*-1;
+    
+    A = G + s*C;   
+    X = A\b;
+    gainMC(n) = 20*log10(abs(X(OutputNode)));
+end
+figure(4)
+histogram(gainMC);
+
+%% Transient Analysis
+Inputs;
+Fs = 1000;
+T = 1/Fs;
+L = 1000;
+t = (0:L-1)*T;
+[stepOut,stepinF,stepOutF] = transient(G,C,b,stepin,t,T);
+[sinOut,sininF,sinOutF] = transient(G,C,b,sinin,t,T);
+[gaussOut,gaussinF,gaussOutF] = transient(G,C,b,gaussin,t,T);
+
+% FFT of step
+figure(5);
+subplot(3,1,1)
+plot(t,stepin,t,stepOut);
+title('Step Function Time Domain Response');
+xlabel('Time (s)');
+ylabel('Voltage (V)');
+legend('V_i_n','V_O');
+disp('Note: the infinite fourier transform is not shown due to the low sampling rate')
+subplot(3,1,2)
+plot(stepinF) 
+title('Single-Sided Amplitude Spectrum of Step Function Input')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+xlim([450 550])
+subplot(3,1,3)
+plot(stepOutF,'red') 
+title('Single-Sided Amplitude Spectrum of Step Function Output')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+xlim([450 550])
+
+% FFT of sine 
+figure(6);
+subplot(3,1,1)
+plot(t,sinin,t,sinOut);
+title('Sine Function Time Domain Response');
+xlabel('Time (s)');
+ylabel('Voltage (V)');
+legend('V_i_n','V_O');
+subplot(3,1,2)
+plot(sininF) 
+title('Single-Sided Amplitude Spectrum of Sine Function Input')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+xlim([300 700])
+subplot(3,1,3)
+plot(sinOutF,'red') 
+title('Single-Sided Amplitude Spectrum of Sine Function Output')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+xlim([300 700])
+
+% FFT of Gauss
+figure(7);
+subplot(3,1,1)
+plot(tg,gaussin,t,gaussOut);
+title('Gaussian Pulse Time Domain Response');
+xlabel('Time (s)');
+ylabel('Voltage (V)');
+legend('V_i_n','V_O');
+subplot(3,1,2)
+plot(gaussinF) 
+title('Single-Sided Amplitude Spectrum of Gaussian Pulse Input')
+xlabel('Frequency (f)')
+ylabel('|P(f)|')
+xlim([300 700])
+subplot(3,1,3)
+plot(gaussOutF) 
+title('Single-Sided Amplitude Spectrum of Gaussian Pulse Output')
+xlabel('f (Hz)')
+ylabel('|P(f)|')
+xlim([300 700])
+%% Noise
+assignment4_part3
+%% Varying Bandwidth
+VaryingBW
+%% VaryingStepSize
+varyingStepSize
+%% Non-linear Gain
+% If the response given is non-linear in the form V = aI3 + bI3^2 + cI3^3
+% than the addition of a F(X) vector must be added. This will be solved by
+% a Newton-Raphson method which would be implemented to solve the F(X)
+% equation. It would then be used in the linear decomposition or
+% trapezoidal rule. 
+%% Tapezoidal Rule
+function [Vout,ffts1, ffts2] = transient(G,C,b,input,time,h)
+    xold = zeros(length(b),1);
+    Vout = zeros(numel(time),1);
+    bnew = zeros(length(b),1);
+    
+    for n=2:numel(time)
+        bmat = b;
+        bmat(7) = input(n-1);
+        bnew(7) = input(n);
+        A = (2*C/h + G);
+        xnew = A\((2*C/h - G)*xold + bmat + bnew);
+        Vout(n) = xnew(6);
+        xold = xnew;
+    end
+    ffts1 = fftshift(abs(fft(input)));
+    ffts2 = fftshift(abs(fft(Vout)));
+end
+##### SOURCE END #####
+--></body></html>
